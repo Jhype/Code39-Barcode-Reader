@@ -53,18 +53,18 @@ def binaryToSymbols(binary):
         if line[0] == '0':
         # if first character is white
             print "white"
-            final += str('W') 
+            final += 'W' 
         elif line[0] == '1':
         # if first character is black
             print "black"
-            final += str('B')
+            final += 'B'
     
         if len(line) >= MIN_THICK_WIDTH:
             print "large"
-            final += str('L')
+            final += 'L'
         elif len(line) <= MAX_THIN_WIDTH: 
             print "small"
-            final += str('S')
+            final += 'S'
     print final
     return final
 
