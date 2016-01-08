@@ -45,21 +45,23 @@ CHAR_TABLE = {
     '0-0101' : 'X',
     '1-0100' : 'Y',
     '0-1100' : 'Z',
-    '01-100' : '0', 
-    '010-01' : '1', 
-    '110-00' : '2', 
-    '001-01' : '3', 
-    '101-00' : '4', 
-    '011-00' : '5', 
-    '000-11' : '6', 
-    '100-10' : '7', 
+    '00-110' : '0', 
+    '10-001' : '1', 
+    '01-001' : '2', 
+    '11-000' : '3', 
+    '00-101' : '4', 
+    '10-100' : '5', 
+    '01-100' : '6', 
+    '00-011' : '7', 
     '10-010' : '8', 
-    '001-10' : '9', 
+    '01-010' : '9', 
     '0-0011' : '-', 
     '1-0010' : '.', 
     '0-1010' : ' ',
     '0-0110' : '*',
 }
+
+ILOVECANDY = False
 
 def get_options():
 
@@ -103,7 +105,21 @@ class Barcode(object):
 
         decoded = []
         for g in groups:
-            decoded.append(CHAR_TABLE[g])
+
+            try:
+                ascii_char = CHAR_TABLE[g]
+            except KeyError, e:
+
+                # sometimes thestart/stop delimeter gets mangled
+                if '0-0110'.startswith(e.message):
+                    ascii_char = '*'
+                else:
+                    sys.exit('[!] Barcode unreadable')
+
+            if ILOVECANDY:
+                print g, '-->', ascii_char
+                
+            decoded.append(ascii_char)
 
         return ''.join(decoded)
 
@@ -123,13 +139,20 @@ class Barcode(object):
         width = barcodeImage.size[0]
         for pixel in range(width-1):
     
-            r, g, b = barcodeImage.getpixel((pixel,5))
-            if (r, g, b) == (255, 255, 255):
-                currentChar = '0'
-            elif (r, g, b) == (0, 0, 0):
-                currentChar = '1'
-            else:
-                continue
+            try:
+
+                # assume image file is in RGB mode
+                r, g, b = barcodeImage.getpixel((pixel,5))
+                if (r, g, b) == (255, 255, 255):
+                    currentChar = '0'
+                elif (r, g, b) == (0, 0, 0):
+                    currentChar = '1'
+                else:
+                    continue
+                
+            except TypeError:
+                # if we get a type error, then image file is not in RGB mode
+                currentChar = '%d' % barcodeImage.getpixel((pixel, 5))
     
             if currentChar != lastChar:
                 barcodeBinary.append(' ')
