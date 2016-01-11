@@ -12,6 +12,7 @@ COLORS = {
 }
 
 SHORTHAND_MAP = {
+
     'nw' : ' ',
     'ww' : '-',
     'nb' : '0',
@@ -19,6 +20,7 @@ SHORTHAND_MAP = {
 }
 
 CHAR_TABLE = {
+
     '100-01' : 'A',
     '010-01' : 'B',
     '110-00' : 'C',
@@ -79,6 +81,7 @@ class Barcode(object):
         barcodeImage = Image.open(filename)
         self.binary = self.barcodeToBinary(barcodeImage)
 
+
         self.detailed = [{
                     'color' : COLORS[bar[0]],
                     'binary' : bar[0],
@@ -136,13 +139,15 @@ class Barcode(object):
     
         barcodeBinary = []
         lastChar = ''
-        width = barcodeImage.size[0]
-        for pixel in range(width-1):
+        image_width, image_height = barcodeImage.size
+        vertical_midpoint = image_height / 2
+
+        for pixel in xrange(image_width-1):
     
             try:
 
                 # assume image file is in RGB mode
-                r, g, b = barcodeImage.getpixel((pixel,5))
+                r, g, b = barcodeImage.getpixel((pixel,vertical_midpoint))
                 if (r, g, b) == (255, 255, 255):
                     currentChar = '0'
                 elif (r, g, b) == (0, 0, 0):
@@ -153,7 +158,7 @@ class Barcode(object):
             except TypeError:
                 # if we get a type error, then image file is not in RGB mode
                 currentChar = '%d' % barcodeImage.getpixel((pixel, 5))
-    
+
             if currentChar != lastChar:
                 barcodeBinary.append(' ')
             barcodeBinary.append(currentChar)
